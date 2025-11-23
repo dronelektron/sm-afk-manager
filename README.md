@@ -6,11 +6,15 @@ Allows you to manage players who are inactive
 
 * Day of Defeat: Source
 
+### Requirements
+
+* [SourceMod](https://www.sourcemod.net) 1.12 or later
+* [afk-detector](https://github.com/dronelektron/afk-detector)
+
 ### Installation
 
-* Download latest [release](https://github.com/dronelektron/afk-manager/releases) (compiled for SourceMod 1.11)
-* Extract "plugins" and "translations" folders to "addons/sourcemod" folder of your server
-* Install [afk-detector](https://github.com/dronelektron/afk-detector)
+* Download latest [release](https://github.com/dronelektron/afk-manager/releases)
+* Extract `plugins` and `translations` folders to `addons/sourcemod` folder of your server
 
 ### Console Variables
 
