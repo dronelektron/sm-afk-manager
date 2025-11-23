@@ -158,7 +158,7 @@ static bool IsPartialOrFullImmunity(int variableImmunity, int immunity) {
 static bool IsAdmin(int client) {
     AdminId id = GetUserAdmin(client);
 
-    return id != INVALID_ADMIN_ID && GetAdminFlag(id, Admin_Generic, Access_Effective);
+    return GetAdminFlag(id, Admin_Generic);
 }
 
 static bool IsSpectator(int client) {
