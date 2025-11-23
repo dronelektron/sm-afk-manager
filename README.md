@@ -1,6 +1,6 @@
 # AFK manager
 
-Allows you to manage players who are inactive
+Allows you to manage inactive players
 
 ### Supported Games
 
