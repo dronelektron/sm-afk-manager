@@ -2,12 +2,14 @@
 
 #include "afk-detector/api"
 #include "afk-manager/message"
+#include "afk-manager/timer"
 #include "afk-manager/use-case"
 
 #include "modules/client.sp"
 #include "modules/console-command.sp"
 #include "modules/console-variable.sp"
 #include "modules/message.sp"
+#include "modules/timer.sp"
 #include "modules/use-case.sp"
 
 public Plugin myinfo = {
@@ -27,7 +29,7 @@ public void OnPluginStart() {
 }
 
 public void OnMapStart() {
-    UseCase_ResetAfkTimer();
+    Timer_CheckPlayers_Reset();
 }
 
 public void OnClientPostAdminCheck(int client) {

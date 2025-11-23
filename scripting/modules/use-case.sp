@@ -1,15 +1,9 @@
-static Handle g_afkTimer = null;
-
-void UseCase_ResetAfkTimer() {
-    g_afkTimer = null;
-}
-
 void UseCase_OnClientActive(int client) {
     Client_ResetSeconds(client);
 }
 
 void UseCase_OnClientInactive(int client) {
-    CreateAfkTimer();
+    Timer_CheckPlayers_Create();
 
     if (IsSpectator(client)) {
         NotifyAboutKick(client);
@@ -18,13 +12,7 @@ void UseCase_OnClientInactive(int client) {
     }
 }
 
-static void CreateAfkTimer() {
-    if (g_afkTimer == null) {
-        g_afkTimer = CreateTimer(AFK_TIMER_INTERVAL, OnCheckPlayers, _, AFK_TIMER_FLAGS);
-    }
-}
-
-static Action OnCheckPlayers(Handle timer) {
+void UseCase_CheckPlayers() {
     int inactiveClientsAmount = 0;
 
     for (int client = 1; client <= MaxClients; client++) {
@@ -42,12 +30,8 @@ static Action OnCheckPlayers(Handle timer) {
     }
 
     if (inactiveClientsAmount == 0) {
-        g_afkTimer = null;
-
-        return Plugin_Stop;
+        Timer_CheckPlayers_Reset();
     }
-
-    return Plugin_Continue;
 }
 
 static void NotifyAboutKick(int client, int clientKickSeconds = 0) {
