@@ -10,8 +10,6 @@
 #include "modules/message.sp"
 #include "modules/use-case.sp"
 
-#define AUTO_CREATE_YES true
-
 public Plugin myinfo = {
     name = "AFK manager",
     author = "Dron-elektron",
@@ -25,7 +23,7 @@ public void OnPluginStart() {
     Variable_Create();
     LoadTranslations("common.phrases");
     LoadTranslations("afk-manager.phrases");
-    AutoExecConfig(AUTO_CREATE_YES, "afk-manager");
+    AutoExecConfig(_, "afk-manager");
 }
 
 public void OnMapStart() {
