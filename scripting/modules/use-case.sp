@@ -9,22 +9,22 @@ void UseCase_OnClientActive(int client) {
 }
 
 void UseCase_OnClientInactive(int client) {
-    UseCase_CreateAfkTimer();
+    CreateAfkTimer();
 
-    if (UseCase_IsSpectator(client)) {
-        UseCase_NotifyAboutKick(client);
+    if (IsSpectator(client)) {
+        NotifyAboutKick(client);
     } else {
-        UseCase_NotifyAboutMove(client);
+        NotifyAboutMove(client);
     }
 }
 
-void UseCase_CreateAfkTimer() {
+static void CreateAfkTimer() {
     if (g_afkTimer == null) {
-        g_afkTimer = CreateTimer(AFK_TIMER_INTERVAL, UseCaseTimer_InactiveClients, _, AFK_TIMER_FLAGS);
+        g_afkTimer = CreateTimer(AFK_TIMER_INTERVAL, OnCheckPlayers, _, AFK_TIMER_FLAGS);
     }
 }
 
-public Action UseCaseTimer_InactiveClients(Handle timer) {
+static Action OnCheckPlayers(Handle timer) {
     int inactiveClientsAmount = 0;
 
     for (int client = 1; client <= MaxClients; client++) {
@@ -34,10 +34,10 @@ public Action UseCaseTimer_InactiveClients(Handle timer) {
 
         inactiveClientsAmount++;
 
-        if (UseCase_IsSpectator(client)) {
-            UseCase_CheckKickSeconds(client);
+        if (IsSpectator(client)) {
+            CheckKickSeconds(client);
         } else {
-            UseCase_CheckMoveSeconds(client);
+            CheckMoveSeconds(client);
         }
     }
 
@@ -50,12 +50,12 @@ public Action UseCaseTimer_InactiveClients(Handle timer) {
     return Plugin_Continue;
 }
 
-void UseCase_NotifyAboutKick(int client, int clientKickSeconds = 0) {
-    if (UseCase_NotEnoughClientsForKick()) {
+static void NotifyAboutKick(int client, int clientKickSeconds = 0) {
+    if (NotEnoughClientsForKick()) {
         return;
     }
 
-    if (UseCase_IsClientHaveImmunity(client, AFK_IMMUNITY_KICK)) {
+    if (IsClientHaveImmunity(client, AFK_IMMUNITY_KICK)) {
         return;
     }
 
@@ -64,12 +64,12 @@ void UseCase_NotifyAboutKick(int client, int clientKickSeconds = 0) {
     Message_InactiveSpectator(client, kickSeconds);
 }
 
-void UseCase_NotifyAboutMove(int client, int clientMoveSeconds = 0) {
-    if (UseCase_NotEnoughClientsForMove()) {
+static void NotifyAboutMove(int client, int clientMoveSeconds = 0) {
+    if (NotEnoughClientsForMove()) {
         return;
     }
 
-    if (UseCase_IsClientHaveImmunity(client, AFK_IMMUNITY_MOVE)) {
+    if (IsClientHaveImmunity(client, AFK_IMMUNITY_MOVE)) {
         return;
     }
 
@@ -78,14 +78,14 @@ void UseCase_NotifyAboutMove(int client, int clientMoveSeconds = 0) {
     Message_InactivePlayer(client, moveSeconds);
 }
 
-void UseCase_CheckKickSeconds(int client) {
+static void CheckKickSeconds(int client) {
     Client_AddKickSeconds(client);
 
-    if (UseCase_NotEnoughClientsForKick()) {
+    if (NotEnoughClientsForKick()) {
         return;
     }
 
-    if (UseCase_IsClientHaveImmunity(client, AFK_IMMUNITY_KICK)) {
+    if (IsClientHaveImmunity(client, AFK_IMMUNITY_KICK)) {
         return;
     }
 
@@ -95,19 +95,19 @@ void UseCase_CheckKickSeconds(int client) {
     if (clientKickSeconds >= kickSeconds) {
         KickClient(client, "%t", "You are kicked for inactivity");
         Message_ClientKicked(client);
-    } else if (UseCase_IsRepeatKickNotification(clientKickSeconds)) {
-        UseCase_NotifyAboutKick(client, clientKickSeconds);
+    } else if (IsRepeatKickNotification(clientKickSeconds)) {
+        NotifyAboutKick(client, clientKickSeconds);
     }
 }
 
-void UseCase_CheckMoveSeconds(int client) {
+static void CheckMoveSeconds(int client) {
     Client_AddMoveSeconds(client);
 
-    if (UseCase_NotEnoughClientsForMove()) {
+    if (NotEnoughClientsForMove()) {
         return;
     }
 
-    if (UseCase_IsClientHaveImmunity(client, AFK_IMMUNITY_MOVE)) {
+    if (IsClientHaveImmunity(client, AFK_IMMUNITY_MOVE)) {
         return;
     }
 
@@ -117,59 +117,59 @@ void UseCase_CheckMoveSeconds(int client) {
     if (clientMoveSeconds >= moveSeconds) {
         ChangeClientTeam(client, TEAM_SPECTATOR);
         Message_PlayerMovedToSpectators(client);
-        UseCase_NotifyAboutKick(client);
-    } else if (UseCase_IsRepeatMoveNotification(clientMoveSeconds)) {
-        UseCase_NotifyAboutMove(client, clientMoveSeconds);
+        NotifyAboutKick(client);
+    } else if (IsRepeatMoveNotification(clientMoveSeconds)) {
+        NotifyAboutMove(client, clientMoveSeconds);
     }
 }
 
-bool UseCase_IsRepeatKickNotification(int seconds) {
+static bool IsRepeatKickNotification(int seconds) {
     int interval = Variable_KickNotificationInterval();
 
-    return UseCase_IsRepeatNotification(interval, seconds);
+    return IsRepeatNotification(interval, seconds);
 }
 
-bool UseCase_IsRepeatMoveNotification(int seconds) {
+static bool IsRepeatMoveNotification(int seconds) {
     int interval = Variable_MoveNotificationInterval();
 
-    return UseCase_IsRepeatNotification(interval, seconds);
+    return IsRepeatNotification(interval, seconds);
 }
 
-bool UseCase_IsRepeatNotification(int interval, int seconds) {
+static bool IsRepeatNotification(int interval, int seconds) {
     return interval == 0 ? false : (seconds % interval == 0);
 }
 
-bool UseCase_NotEnoughClientsForKick() {
+static bool NotEnoughClientsForKick() {
     return GetClientCount() < Variable_KickMinPlayers();
 }
 
-bool UseCase_NotEnoughClientsForMove() {
+static bool NotEnoughClientsForMove() {
     return GetClientCount() < Variable_MoveMinPlayers();
 }
 
-bool UseCase_IsClientHaveImmunity(int client, int immunity) {
+static bool IsClientHaveImmunity(int client, int immunity) {
     int adminImmunity = Variable_AdminImmunity();
 
-    if (UseCase_IsAdmin(client) && adminImmunity > AFK_IMMUNITY_NONE) {
-        return UseCase_IsPartialOrFullImmunity(adminImmunity, immunity);
+    if (IsAdmin(client) && adminImmunity > AFK_IMMUNITY_NONE) {
+        return IsPartialOrFullImmunity(adminImmunity, immunity);
     }
 
     int playerImmunity = Variable_PlayerImmunity();
 
-    return UseCase_IsPartialOrFullImmunity(playerImmunity, immunity);
+    return IsPartialOrFullImmunity(playerImmunity, immunity);
 }
 
-bool UseCase_IsPartialOrFullImmunity(int variableImmunity, int immunity) {
+static bool IsPartialOrFullImmunity(int variableImmunity, int immunity) {
     return variableImmunity == immunity || variableImmunity == AFK_IMMUNITY_FULL;
 }
 
-bool UseCase_IsAdmin(int client) {
+static bool IsAdmin(int client) {
     AdminId id = GetUserAdmin(client);
 
     return id != INVALID_ADMIN_ID && GetAdminFlag(id, Admin_Generic, Access_Effective);
 }
 
-bool UseCase_IsSpectator(int client) {
+static bool IsSpectator(int client) {
     return GetClientTeam(client) == TEAM_SPECTATOR;
 }
 
