@@ -77,6 +77,7 @@ static void CheckKickSeconds(int client) {
     int kickSeconds = Variable_KickSeconds();
 
     if (clientKickSeconds >= kickSeconds) {
+        Client_DisableKickEvent(client);
         KickClient(client, "%t", "You are kicked for inactivity");
         Message_ClientKicked(client);
     } else if (IsRepeatKickNotification(clientKickSeconds)) {

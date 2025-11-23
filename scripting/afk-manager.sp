@@ -37,6 +37,7 @@ public void OnMapStart() {
 public void OnClientConnected(int client) {
     Client_ResetSeconds(client);
     Client_EnableTeamEvent(client);
+    Client_EnableKickEvent(client);
 }
 
 public void AfkDetector_OnClientActive(int client) {
