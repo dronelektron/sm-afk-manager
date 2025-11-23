@@ -13,25 +13,31 @@ void UseCase_OnClientInactive(int client) {
 }
 
 void UseCase_CheckPlayers() {
-    int inactiveClientsAmount = 0;
+    int inactiveAmount = 0;
 
     for (int client = 1; client <= MaxClients; client++) {
-        if (!IsClientInGame(client) || AfkDetector_IsClientActive(client)) {
-            continue;
-        }
-
-        inactiveClientsAmount++;
-
-        if (IsSpectator(client)) {
-            CheckKickSeconds(client);
-        } else {
-            CheckMoveSeconds(client);
+        if (IsClientInGame(client) && IsClientInactive(client)) {
+            inactiveAmount++;
         }
     }
 
-    if (inactiveClientsAmount == 0) {
+    if (inactiveAmount == 0) {
         Timer_CheckPlayers_Reset();
     }
+}
+
+static bool IsClientInactive(int client) {
+    if (IsFakeClient(client) || AfkDetector_IsClientActive(client)) {
+        return false;
+    }
+
+    if (IsSpectator(client)) {
+        CheckKickSeconds(client);
+    } else {
+        CheckMoveSeconds(client);
+    }
+
+    return true;
 }
 
 static void NotifyAboutKick(int client, int clientKickSeconds = 0) {
