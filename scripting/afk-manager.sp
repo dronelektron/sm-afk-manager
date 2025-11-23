@@ -8,6 +8,7 @@
 #include "modules/client.sp"
 #include "modules/console-command.sp"
 #include "modules/console-variable.sp"
+#include "modules/event.sp"
 #include "modules/message.sp"
 #include "modules/timer.sp"
 #include "modules/use-case.sp"
@@ -23,6 +24,7 @@ public Plugin myinfo = {
 public void OnPluginStart() {
     Command_Create();
     Variable_Create();
+    Event_Create();
     LoadTranslations("common.phrases");
     LoadTranslations("afk-manager.phrases");
     AutoExecConfig(_, "afk-manager");
@@ -32,8 +34,9 @@ public void OnMapStart() {
     Timer_CheckPlayers_Reset();
 }
 
-public void OnClientPostAdminCheck(int client) {
+public void OnClientConnected(int client) {
     Client_ResetSeconds(client);
+    Client_EnableTeamEvent(client);
 }
 
 public void AfkDetector_OnClientActive(int client) {

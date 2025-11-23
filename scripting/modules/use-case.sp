@@ -99,6 +99,7 @@ static void CheckMoveSeconds(int client) {
     int moveSeconds = Variable_MoveSeconds();
 
     if (clientMoveSeconds >= moveSeconds) {
+        Client_DisableTeamEvent(client);
         ChangeClientTeam(client, TEAM_SPECTATOR);
         Message_PlayerMovedToSpectators(client);
         NotifyAboutKick(client);
